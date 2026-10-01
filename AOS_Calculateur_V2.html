@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>AOS — Calculateur Gérant</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#111827;--muted:#667085;--line:#e5e7eb;--ok:#087f5b;--bad:#b42318}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:1050px;margin:auto;padding:16px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-size:24px;font-weight:800}
+.badge{padding:8px 11px;border-radius:999px;background:#eee;font-size:12px;font-weight:800}.live{background:#d1fae5;color:#065f46}.error{background:#fee2e2;color:#991b1b}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:12px;box-shadow:0 1px 2px #0000000a}
+.price{font-size:30px;font-weight:800}.small{font-size:12px;color:var(--muted)}button,input{font:inherit}button{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 12px;font-weight:700;cursor:pointer}.primary{background:#111827;color:#fff}
+.tabs{display:flex;gap:8px;overflow:auto;margin-top:12px}.tabs button.active{background:#111827;color:#fff}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%}th,td{padding:10px 7px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--muted)}
+input{width:76px;padding:8px;border:1px solid var(--line);border-radius:9px;text-align:right;background:#fff}.pane{display:none}.pane.active{display:block}.controls,.lot{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.lot{margin-bottom:12px}.lot input[type=number]{width:105px}.lot input[type=checkbox]{width:auto}.manual{display:none}.manual.show{display:block}.notice{font-size:12px;color:var(--muted);line-height:1.45}.tax{color:var(--bad)}.net{font-weight:800}
+@media(max-width:650px){main{padding:10px}.grid{grid-template-columns:1fr}.brand{font-size:20px}.price{font-size:27px}th,td{padding:8px 4px;font-size:11px}input{width:58px}.small{font-size:11px}}
+</style>
+</head><body><main>
+<div class="top"><div><div class="brand">AOS — Calculateur Gérant</div><div class="small">Or & argent · prix d'achat</div></div><span id="status" class="badge">CONNEXION…</span></div>
+<div class="grid"><div class="card"><div class="small">OR FIN — €/g</div><div id="goldPrice" class="price">—</div><div id="goldUsd" class="small">—</div></div><div class="card"><div class="small">ARGENT FIN — €/g</div><div id="silverPrice" class="price">—</div><div id="silverUsd" class="small">—</div></div></div>
+<div class="card"><div class="controls"><button id="refresh" class="primary">Actualiser</button><button id="mode">Passer en manuel</button><span id="updated" class="small"></span></div><div id="manual" class="manual"><p class="small">Saisie de secours (ex. cours Kitco en €/g)</p><div class="controls"><label>Or <input id="mg" type="number" step="0.01"></label><label>Argent <input id="ms" type="number" step="0.001"></label><button id="apply">Appliquer</button></div></div></div>
+<div class="tabs"><button class="active" data-p="jgold">Bijoux or</button><button data-p="jsilver">Argent</button><button data-p="cgold">Pièces or</button><button data-p="csilver">Pièces argent</button></div>
+
+<div id="jgold" class="card pane active">
+<div class="lot"><b>Poids :</b><input id="jgw" type="number" min="0" step="0.01" value="1"> g
+<label><input id="jgtax" type="checkbox"> Ensemble soumis à la taxe 6,5 %</label></div>
+<div class="tablewrap"><table><thead><tr><th>Titre</th><th>Marge</th><th>Avant taxe</th><th>Taxe</th><th>Net client</th></tr></thead><tbody id="jg"></tbody></table></div></div>
+
+<div id="jsilver" class="card pane">
+<div class="lot"><b>Poids :</b><input id="jsw" type="number" min="0" step="0.01" value="1"> g
+<label><input id="jstax" type="checkbox"> Ensemble soumis à la taxe 6,5 %</label></div>
+<div class="tablewrap"><table><thead><tr><th>Titre</th><th>Marge</th><th>Avant taxe</th><th>Taxe</th><th>Net client</th></tr></thead><tbody id="js"></tbody></table></div></div>
+
+<div id="cgold" class="card pane"><div class="tablewrap"><table><thead><tr><th>Pièce</th><th>Marge</th><th>Avant taxe</th><th>Taxe 11,5 %</th><th>Net client</th></tr></thead><tbody id="gc"></tbody></table></div></div>
+<div id="csilver" class="card pane"><div class="tablewrap"><table><thead><tr><th>Pièce</th><th>Marge</th><th>Avant taxe</th><th>Taxe 11,5 %</th><th>Net client</th></tr></thead><tbody id="sc"></tbody></table></div></div>
+
+<div class="card notice"><b>Barèmes AOS :</b> 999‰ = 5 % ; 916/750/585/375‰ = 3 % + 8 €/g ; argent 925/800‰ = 25 % ; pièces or = 5 % ; pièces argent = 12 %. Marges modifiables et mémorisées sur cet appareil.<br>
+<b>Bijoux :</b> taxe désactivée par défaut. Activez manuellement « Ensemble soumis à la taxe 6,5 % » uniquement lorsque la cession est effectivement taxable.<br>
+<b>Pièces :</b> valeur métal − marge, puis taxe forfaitaire de 11,5 % sur le montant après marge. Les valeurs n'intègrent pas une éventuelle prime numismatique.</div>
+</main>
+<script>
+const OZ=31.1034768;let mode='live',gold=0,silver=0,usdEur=0;
+const $=s=>document.querySelector(s),money=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const G=[['999‰ · 24 ct',.999,5,0],['916‰ · 22 ct',.916,3,8],['750‰ · 18 ct',.75,3,8],['585‰ · 14 ct',.585,3,8],['375‰ · 9 ct',.375,3,8]];
+const S=[['Argent 925‰',.925,25],['Argent 800‰',.8,25]];
+const GC=[['20 F Napoléon',6.4516,.9,5],['10 F Napoléon',3.2258,.9,5],['Souverain britannique',7.9881,.9167,5],['20 Dollars US or',33.436,.9,5],['50 Pesos Mexique',41.6666,.9,5]];
+const SC=[['50 F Hercule',30,.9,12],['10 F Hercule',25,.9,12],['5 F Semeuse',12,.835,12],['10 F Turin',10,.68,12],['20 F Turin',20,.68,12]];
+function key(a,i,t){return `aos_${a}_${i}_${t}`}
+function saved(a,i,t,d){const v=localStorage.getItem(key(a,i,t));return v===null?d:+v}
+function inp(a,i,t,d){return `<input type="number" min="0" step="0.1" value="${saved(a,i,t,d)}" data-a="${a}" data-i="${i}" data-t="${t}">`}
+function draw(){
+ $('#goldPrice').textContent=gold?gold.toFixed(2)+' €':'—';$('#silverPrice').textContent=silver?silver.toFixed(3)+' €':'—';
+ let wg=+($('#jgw').value||0),ws=+($('#jsw').value||0),tg=$('#jgtax').checked,ts=$('#jstax').checked;
+ $('#jg').innerHTML=G.map((x,i)=>{let p=saved('jg',i,'p',x[2]),f=saved('jg',i,'f',x[3]),metal=gold*x[1],unit=Math.max(0,metal*(1-p/100)-f),before=unit*wg,tax=tg?before*.065:0,net=before-tax;return `<tr><td><b>${x[0]}</b><div class="small">${money(metal)}/g métal</div></td><td>${inp('jg',i,'p',x[2])}% + ${inp('jg',i,'f',x[3])}€/g</td><td>${money(before)}<div class="small">${money(unit)}/g</div></td><td class="tax">${tax?'-'+money(tax):money(0)}</td><td class="net">${money(net)}</td></tr>`}).join('');
+ $('#js').innerHTML=S.map((x,i)=>{let p=saved('js',i,'p',x[2]),metal=silver*x[1],unit=metal*(1-p/100),before=unit*ws,tax=ts?before*.065:0,net=before-tax;return `<tr><td><b>${x[0]}</b><div class="small">${money(metal)}/g métal</div></td><td>${inp('js',i,'p',x[2])}%</td><td>${money(before)}<div class="small">${money(unit)}/g</div></td><td class="tax">${tax?'-'+money(tax):money(0)}</td><td class="net">${money(net)}</td></tr>`}).join('');
+ coin('gc',GC,gold);coin('sc',SC,silver);
+ document.querySelectorAll('input[data-a]').forEach(e=>e.oninput=()=>{localStorage.setItem(key(e.dataset.a,e.dataset.i,e.dataset.t),e.value);draw()})
+}
+function coin(id,A,spot){$('#'+id).innerHTML=A.map((x,i)=>{let p=saved(id,i,'p',x[3]),fine=x[1]*x[2],course=spot*fine,before=course*(1-p/100),tax=before*.115,net=before-tax;return `<tr><td><b>${x[0]}</b><div class="small">${fine.toFixed(4)} g fin · métal ${money(course)}</div></td><td>${inp(id,i,'p',x[3])}%</td><td>${money(before)}</td><td class="tax">-${money(tax)}</td><td class="net">${money(net)}</td></tr>`}).join('')}
+['jgw','jsw','jgtax','jstax'].forEach(id=>$('#'+id).oninput=draw);
+async function live(){if(mode!=='live')return;try{$('#status').textContent='ACTUALISATION…';$('#status').className='badge';const [ga,sa,fx]=await Promise.all([fetch('https://api.gold-api.com/price/XAU',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('XAU');return r.json()}),fetch('https://api.gold-api.com/price/XAG',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('XAG');return r.json()}),fetch('https://api.frankfurter.dev/v2/rate/usd/eur',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('FX');return r.json()})]);usdEur=+fx.rate;gold=(+ga.price*usdEur)/OZ;silver=(+sa.price*usdEur)/OZ;$('#goldUsd').textContent=`${(+ga.price).toFixed(2)} $/oz · USD/EUR ${usdEur.toFixed(4)}`;$('#silverUsd').textContent=`${(+sa.price).toFixed(2)} $/oz`;$('#updated').textContent='Mis à jour '+new Date().toLocaleTimeString('fr-FR')+' · source métal '+(ga.updatedAtReadable||'live');$('#status').textContent='LIVE';$('#status').className='badge live';draw()}catch(e){$('#status').textContent='FLUX INDISPONIBLE';$('#status').className='badge error';$('#updated').textContent='Utilisez le mode manuel Kitco si nécessaire.'}}
+$('#refresh').onclick=live;
+$('#mode').onclick=()=>{mode=mode==='live'?'manual':'live';$('#manual').classList.toggle('show',mode==='manual');$('#mode').textContent=mode==='live'?'Passer en manuel':'Revenir au LIVE';if(mode==='live')live();else{$('#status').textContent='MANUEL';$('#status').className='badge';$('#mg').value=gold?gold.toFixed(2):'';$('#ms').value=silver?silver.toFixed(3):''}};
+$('#apply').onclick=()=>{gold=+$('#mg').value||0;silver=+$('#ms').value||0;$('#goldUsd').textContent='Saisie manuelle';$('#silverUsd').textContent='Saisie manuelle';$('#updated').textContent='Mode manuel · '+new Date().toLocaleTimeString('fr-FR');draw()};
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.pane').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.p).classList.add('active')});
+draw();live();setInterval(live,60000);
+</script></body></html>
