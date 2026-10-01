@@ -14,7 +14,19 @@ main{max-width:1050px;margin:auto;padding:16px}.top{display:flex;justify-content
 .price{font-size:30px;font-weight:800}.small{font-size:12px;color:var(--muted)}button,input{font:inherit}button{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 12px;font-weight:700;cursor:pointer}.primary{background:#111827;color:#fff}
 .tabs{display:flex;gap:8px;overflow:auto;margin-top:12px}.tabs button.active{background:#111827;color:#fff}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%}th,td{padding:10px 7px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--muted)}
 input{width:76px;padding:8px;border:1px solid var(--line);border-radius:9px;text-align:right;background:#fff}.pane{display:none}.pane.active{display:block}.controls,.lot{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.lot{margin-bottom:12px}.lot input[type=number]{width:105px}.lot input[type=checkbox]{width:auto}.manual{display:none}.manual.show{display:block}.notice{font-size:12px;color:var(--muted);line-height:1.45}.tax{color:var(--bad)}.net{font-weight:800}
-@media(max-width:650px){main{padding:10px}.grid{grid-template-columns:1fr}.brand{font-size:20px}.price{font-size:27px}th,td{padding:8px 4px;font-size:11px}input{width:58px}.small{font-size:11px}}
+@media(max-width:650px){
+main{padding:10px}.grid{grid-template-columns:1fr}.brand{font-size:20px}.price{font-size:27px}
+.tablewrap{overflow:visible} table,thead,tbody,tr,th,td{display:block;width:100%} thead{display:none}
+tbody{display:grid;gap:10px} tr{position:relative;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
+td{border:0;padding:5px 0;text-align:left!important;font-size:13px}
+td:first-child{padding-right:110px;font-size:15px}
+td:nth-child(2){color:var(--muted)}
+td:nth-child(3)::before{content:"Avant taxe : ";color:var(--muted);font-weight:600}
+td:nth-child(4)::before{content:"Taxe : ";color:var(--muted);font-weight:600}
+td:nth-child(5){position:absolute;right:12px;top:12px;width:105px;text-align:right!important;font-size:19px}
+td:nth-child(5)::before{content:"NET CLIENT";display:block;color:var(--muted);font-size:9px;font-weight:700;margin-bottom:3px}
+input{width:58px}.small{font-size:11px}.lot{padding:4px 0 8px}.lot label{width:100%}
+}
 </style>
 </head><body><main>
 <div class="top"><div><div class="brand">AOS — Calculateur Gérant</div><div class="small">Or & argent · prix d'achat</div></div><span id="status" class="badge">CONNEXION…</span></div>
@@ -52,8 +64,8 @@ function inp(a,i,t,d){return `<input type="number" min="0" step="0.1" value="${s
 function draw(){
  $('#goldPrice').textContent=gold?gold.toFixed(2)+' €':'—';$('#silverPrice').textContent=silver?silver.toFixed(3)+' €':'—';
  let wg=+($('#jgw').value||0),ws=+($('#jsw').value||0),tg=$('#jgtax').checked,ts=$('#jstax').checked;
- $('#jg').innerHTML=G.map((x,i)=>{let p=saved('jg',i,'p',x[2]),f=saved('jg',i,'f',x[3]),metal=gold*x[1],unit=Math.max(0,metal*(1-p/100)-f),before=unit*wg,tax=tg?before*.065:0,net=before-tax;return `<tr><td><b>${x[0]}</b><div class="small">${money(metal)}/g métal</div></td><td>${inp('jg',i,'p',x[2])}% + ${inp('jg',i,'f',x[3])}€/g</td><td>${money(before)}<div class="small">${money(unit)}/g</div></td><td class="tax">${tax?'-'+money(tax):money(0)}</td><td class="net">${money(net)}</td></tr>`}).join('');
- $('#js').innerHTML=S.map((x,i)=>{let p=saved('js',i,'p',x[2]),metal=silver*x[1],unit=metal*(1-p/100),before=unit*ws,tax=ts?before*.065:0,net=before-tax;return `<tr><td><b>${x[0]}</b><div class="small">${money(metal)}/g métal</div></td><td>${inp('js',i,'p',x[2])}%</td><td>${money(before)}<div class="small">${money(unit)}/g</div></td><td class="tax">${tax?'-'+money(tax):money(0)}</td><td class="net">${money(net)}</td></tr>`}).join('');
+ $('#jg').innerHTML=G.map((x,i)=>{let p=saved('jg',i,'p',x[2]),f=saved('jg',i,'f',x[3]),metal=gold*x[1],unit=Math.max(0,metal*(1-p/100)-f),before=unit*wg,tax=tg?before*.065:0,net=before-tax;return `<tr><td><b>${x[0]}</b><div class="small">${money(metal)}/g métal</div></td><td>${inp('jg',i,'p',x[2])}% + ${inp('jg',i,'f',x[3])}€/g</td><td>${money(before)}<div class="small">${money(unit)}/g</div></td><td class="tax">${tax?'-'+money(tax):money(0)}</td><td class="net">${money(net)}<div class="small">${money(unit)}/g achat</div></td></tr>`}).join('');
+ $('#js').innerHTML=S.map((x,i)=>{let p=saved('js',i,'p',x[2]),metal=silver*x[1],unit=metal*(1-p/100),before=unit*ws,tax=ts?before*.065:0,net=before-tax;return `<tr><td><b>${x[0]}</b><div class="small">${money(metal)}/g métal</div></td><td>${inp('js',i,'p',x[2])}%</td><td>${money(before)}<div class="small">${money(unit)}/g</div></td><td class="tax">${tax?'-'+money(tax):money(0)}</td><td class="net">${money(net)}<div class="small">${money(unit)}/g achat</div></td></tr>`}).join('');
  coin('gc',GC,gold);coin('sc',SC,silver);
  document.querySelectorAll('input[data-a]').forEach(e=>e.oninput=()=>{localStorage.setItem(key(e.dataset.a,e.dataset.i,e.dataset.t),e.value);draw()})
 }
